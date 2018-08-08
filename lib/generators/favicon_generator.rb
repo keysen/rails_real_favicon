@@ -32,7 +32,7 @@ class FaviconGenerator < Rails::Generators::Base
     resp = JSON.parse(response)
 
     zip = resp['favicon_generation_result']['favicon']['package_url']
-    FileUtils.mkdir_p('app/assets/images/favicon')
+    FileUtils.mkdir_p('public/favicon')
 
     Dir.mktmpdir 'rfg' do |tmp_dir|
       download_package zip, tmp_dir
@@ -43,7 +43,7 @@ class FaviconGenerator < Rails::Generators::Base
           content = replace_url_by_asset_path content
           new_ext = '.erb'
         end
-        create_file "app/assets/images/favicon/#{File.basename file}#{new_ext}", content
+        create_file "public/favicon/#{File.basename file}#{new_ext}", content
       end
     end
 
@@ -87,11 +87,10 @@ class FaviconGenerator < Rails::Generators::Base
   end
 
   def replace_url_by_asset_path(content)
-    repl = "\"<%= asset_path 'favicon\\k<path>' %>\""
+    repl = "\"<%= asset_path 'favicon\\k<path>', skip_pipeline: true %>\""
     content.gsub(/"#{PATH_UNIQUE_KEY}(?<path>[^"]+)"/) do |s|
       s.gsub!(/\\\//, '/')
       s.gsub(/"#{PATH_UNIQUE_KEY}(?<path>[^"]+)"/, repl)
     end
   end
-
 end
